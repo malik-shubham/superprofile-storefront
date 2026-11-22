@@ -45,3 +45,7 @@ brief.pdf.pdf
 *.pdf
 JD.md.txt
 SuperProfile_ClaudeCode_Prompt.md
+
+# local-only agent notes
+CLAUDE.md
+AGENTS.md
