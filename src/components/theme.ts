@@ -50,7 +50,13 @@ export const THEME: Record<Theme, ThemeTokens> = {
 };
 
 export function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
+  // "Shubham Malik | UI/UX Design" → use only "Shubham Malik" → "SM"
+  const core = name.split(/\s[|·•–—-]\s|[|·•]/)[0] ?? name;
+  const parts = core
+    .trim()
+    .split(/\s+/)
+    .map((w) => w.replace(/[^\p{L}\p{N}]/gu, ""))
+    .filter(Boolean);
   const s = (parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : (parts[0]?.[1] ?? ""));
   return s.toUpperCase() || "★";
 }
