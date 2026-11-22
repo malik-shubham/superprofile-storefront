@@ -292,7 +292,6 @@ export default function Builder({ initial }: { initial?: { store: Store; publish
     setStep("input");
   };
 
-  if (!restored) return <div className="min-h-dvh" />;
 
   // ---------- screens ----------
   return (
