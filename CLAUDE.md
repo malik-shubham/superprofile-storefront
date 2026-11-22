@@ -7,31 +7,33 @@ self-description (handle optional) into a ready-to-share storefront: AI bio, 2�
 products with format + INR price, descriptions, edit + regenerate (whole page or one
 part), and a public shareable page. Mobile-first.
 
-Deadline: Sun 22 Nov 2026, 5:00 PM IST. Feature freeze 11 AM IST. Submit by 3 PM IST.
 Private inputs (brief, JD, build prompt) live in the folder but are gitignored.
 
 ## Decisions
-- Stack: Next.js 16 (App Router, Turbopack, cacheComponents on) + Tailwind 4, on Vercel from GitHub.
-  - Next 16 note: `export const dynamic` is NOT allowed. Use `await connection()` from `next/server` for per-request routes.
-- AI: Anthropic API, `claude-haiku-5-5`, server-side only. Key in `ANTHROPIC_API_KEY` env var (.env.local / Vercel settings). Never in code or git.
-- Instagram handle: optional; used as name/link/context only. NOT scraped. Handle-only input → ask for one line.
-- No login, payments, checkout, scraping.
-- Real AI only: no mocked or pre-written output, not even as fallback. Fail → retry once → friendly error that keeps input. Failed regenerate keeps previous version.
-- Structured JSON output validated with Zod; prices checked against INR bands in code.
-- Guardrails: no income/medical/financial-return promises; match creator's language.
-- Abuse/cost: input length limits, per-visitor rate limit, spending limit on API account.
-- Branch + PR per layer.
+- Stack: Next.js 16 (App Router, Turbopack) + Tailwind 4, on Vercel from GitHub.
+  - `cacheComponents` is OFF on purpose (simpler dynamic pages). `export const dynamic` is not used.
+- AI: Anthropic API, `claude-haiku-5-5`, effort `low`, structured outputs via `messages.parse` + `zodOutputFormat`. Server-side only. Key in `ANTHROPIC_API_KEY`.
+- Storage: Upstash Redis (Vercel → Storage). Env: `KV_REST_API_URL`/`KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL`/`_TOKEN`. Local dev without them uses in-memory (resets on restart). On Vercel without Redis, publish returns a friendly 503.
+- Instagram handle: optional; name/link only. NOT scraped. Handle-only → ask one line.
+- No login: publish returns a secret edit token → private edit link `/edit/:slug?token=`.
+- Real AI only, no pre-written fallback. Fail → friendly error, input kept; failed rewrite keeps previous version; Undo after AI changes.
+- Prices: AI picks inside bands (src/lib/pricing.ts); code clamps + charm-rounds. Editor shows "typical range" hint.
+- Guardrails: banned-claim regex → retry once with feedback → else show a review warning to the creator.
+- Abuse: input limits (Zod), AI rate limit 40/h + 120/day per IP, publish 30/h, track 60/h per store per IP.
+
+## Map
+- `src/lib/ai.ts` prompts, model call, checks, retries
+- `src/lib/pricing.ts` formats, audience tiers, INR bands, charm pricing
+- `src/lib/schema.ts` Zod schemas + limits
+- `src/lib/db.ts` Redis/in-memory: stores, rate limits, analytics
+- `src/components/Builder.tsx` creator flow (input → follow-up → generating → editor → published)
+- `src/components/StoreView.tsx` store rendering (public + editable)
+- Pages: `/`, `/s/[slug]`, `/s/[slug]/p/[id]`, `/edit/[slug]`
+- API: generate, regenerate (bio | product | add), publish, store/[slug], track, stats/[slug]
 
 ## Progress
-- [x] Layer 0 — setup + live hello world. Live: https://superprofile-storefront-ten.vercel.app (auto-deploys from `main`). Repo: github.com/malik-shubham/superprofile-storefront. Key set in .env.local and Vercel.
-- [ ] Layer 0.5 — decode & plan
-- [ ] Layer 1 — core flow
-- [ ] Layer 2 — robustness
-- [ ] Layer 3 — evals (EVALS.md)
-- [ ] Layer 4 — stretch features
-- [ ] Layer 5 — craft
-- [ ] Layer 6 — evidence (competitors, FINDINGS.md)
-- [ ] Layer 7 — hygiene
-- [ ] Layer 8 — decision doc
-- [ ] Layer 9 — Loom + submission
-- [ ] Layer 10 — interview prep
+- [x] Layer 0 — live hello world. Live: https://superprofile-storefront-ten.vercel.app
+- [x] Milestone 1 (user chose one-phase build instead of layers 0.5–5): full product built; 20/20 local end-to-end checks pass + 11 input edge cases.
+- [ ] Add Upstash Redis on Vercel, merge PR, test live on phone
+- [ ] Evals (EVALS.md), pricing research write-up, competitor scan, FINDINGS.md
+- [ ] Decision doc, Loom, submission, interview prep
