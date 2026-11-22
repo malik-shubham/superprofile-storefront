@@ -272,7 +272,7 @@ function storeContext(store: Store): string {
 }
 
 const instructionLine = (instruction?: string) =>
-  instruction?.trim() ? `\nThe creator asked: "${clip(instruction.trim(), LIMITS.instruction)}". Follow it if it fits the rules.` : "";
+  instruction?.trim() ? `\nThe creator asked: "${clip(instruction.trim(), LIMITS.instruction)}". This request takes priority over your own ideas: if it names a format (e.g. "live workshop", "1:1 call", "ebook"), use exactly that format; if it asks for cheaper or pricier, move the price within the allowed band. Only ignore it if it would break the honesty rules.` : "";
 
 export async function regenerateBio(store: Store, instruction?: string) {
   const user = `${storeContext(store)}\n\n${rulesBlock(store.language, store.audience)}\n\nRewrite ONLY the tagline and bio. Make them noticeably different from the current ones but true to the same creator. Status rules do not apply here.${instructionLine(instruction)}`;
