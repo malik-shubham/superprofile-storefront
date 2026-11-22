@@ -23,7 +23,7 @@ Private inputs (brief, JD, build prompt) live in the folder but are gitignored.
 - Branch + PR per layer.
 
 ## Progress
-- [~] Layer 0 — setup + live hello world (code done; repo/Vercel/key pending)
+- [x] Layer 0 — setup + live hello world. Live: https://superprofile-storefront-ten.vercel.app (auto-deploys from `main`). Repo: github.com/malik-shubham/superprofile-storefront. Key set in .env.local and Vercel.
 - [ ] Layer 0.5 — decode & plan
 - [ ] Layer 1 — core flow
 - [ ] Layer 2 — robustness
