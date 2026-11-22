@@ -95,7 +95,13 @@ function clearDraft() {
   } catch {}
 }
 
-export default function Builder({ initial }: { initial?: { store: Store; published: Published } }) {
+export default function Builder({
+  initial,
+  publicOrigin,
+}: {
+  initial?: { store: Store; published: Published };
+  publicOrigin?: string;
+}) {
   const [step, setStep] = useState<Step>(initial ? "editor" : "input");
   const [input, setInput] = useState<Input>(EMPTY_INPUT);
   const [question, setQuestion] = useState("");
@@ -473,7 +479,13 @@ export default function Builder({ initial }: { initial?: { store: Store; publish
       )}
 
       {step === "published" && store && published && (
-        <PublishedScreen store={store} published={published} onEdit={() => setStep("editor")} onNew={startOver} />
+        <PublishedScreen
+          store={store}
+          published={published}
+          publicOrigin={publicOrigin}
+          onEdit={() => setStep("editor")}
+          onNew={startOver}
+        />
       )}
 
       {toast && (
@@ -898,16 +910,19 @@ function RegenAllSheet({
 function PublishedScreen({
   store,
   published,
+  publicOrigin,
   onEdit,
   onNew,
 }: {
   store: Store;
   published: Published;
+  publicOrigin?: string;
   onEdit: () => void;
   onNew: () => void;
 }) {
-  // Only ever rendered in the browser (after the creator publishes), so window exists.
-  const [origin] = useState(() => (typeof window !== "undefined" ? window.location.origin : ""));
+  // Always share the public address. Falls back to the current address only
+  // when no public one is known (local dev).
+  const [origin] = useState(() => publicOrigin || (typeof window !== "undefined" ? window.location.origin : ""));
   const [copied, setCopied] = useState<string | null>(null);
   const [stats, setStats] = useState<{ views: number; clicks: number } | null>(null);
   useEffect(() => {
