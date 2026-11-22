@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Builder from "@/components/Builder";
 import { getStore } from "@/lib/db";
+import { publicOrigin } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Edit your store", robots: { index: false } };
 
@@ -24,5 +25,7 @@ export default async function EditPage({ params, searchParams }: PageProps<"/edi
     );
   }
 
-  return <Builder initial={{ store: saved.store, published: { slug, editToken: token } }} />;
+  return (
+    <Builder initial={{ store: saved.store, published: { slug, editToken: token } }} publicOrigin={publicOrigin()} />
+  );
 }
