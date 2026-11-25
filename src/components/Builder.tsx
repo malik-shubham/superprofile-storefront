@@ -303,7 +303,13 @@ export default function Builder({
   return (
     <div className="min-h-dvh flex flex-col bg-zinc-50 text-zinc-900">
       {step === "input" && (
-        <InputScreen input={input} setInput={setInput} error={error} onSubmit={() => generate(input)} />
+        <InputScreen
+          input={input}
+          setInput={setInput}
+          error={error}
+          onSubmit={() => generate(input)}
+          onBackToDraft={store ? () => setStep("editor") : undefined}
+        />
       )}
 
       {step === "followup" && (
@@ -351,6 +357,21 @@ export default function Builder({
         <>
           <div className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-zinc-200">
             <div className="mx-auto max-w-md px-4 py-2 flex items-center gap-2">
+              {!initial && (
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setStep("input");
+                    window.scrollTo({ top: 0 });
+                  }}
+                  disabled={!!busy}
+                  aria-label="Back to my answers"
+                  title="Back to my answers"
+                  className="h-10 w-10 -ml-2 shrink-0 rounded-full text-lg text-zinc-600 hover:bg-zinc-100 disabled:opacity-50"
+                >
+                  ←
+                </button>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold truncate">Your store draft</p>
                 <p className="text-xs text-zinc-500 truncate">Tap any text to edit it</p>
@@ -534,16 +555,26 @@ function InputScreen({
   setInput,
   error,
   onSubmit,
+  onBackToDraft,
 }: {
   input: Input;
   setInput: (i: Input) => void;
   error: string | null;
   onSubmit: () => void;
+  onBackToDraft?: () => void;
 }) {
   const len = input.description.length;
   const handleBad = input.handle && !/^@?[a-zA-Z0-9._]{1,30}$/.test(input.handle.trim());
   return (
     <Shell>
+      {onBackToDraft && (
+        <div className="pt-4 -mb-4 flex items-center justify-between gap-3">
+          <button type="button" onClick={onBackToDraft} className="h-10 text-sm font-medium text-violet-700">
+            ← Back to my draft
+          </button>
+          <span className="text-xs text-zinc-500">Change answers, then create again</span>
+        </div>
+      )}
       <div className="pt-10">
         <p className="text-sm font-medium text-violet-700">AI Storefront Generator</p>
         <h1 className="mt-2 text-[28px] font-bold leading-tight">Your store, ready to share in 2 minutes</h1>
